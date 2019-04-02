@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" style="height:100%">
+
+<head>
+    <meta charSet="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Artificial intelligence with Mihok from TorontoJS, building on basic knowledge we will discover and build Neural Networks from scratch to get a better understanding of how they work." />
+    <title>JS Workshop</title>
+    <script type="text/javascript" src="helpers/manifest.lib.js"></script>
+    <script type="text/javascript" src="helpers/math.lib.js"></script>
+    <!-- Insert Live Editor here -->
+</head>
+
+<body>
+  <script type="text/javascript">
+
+// Our neural network muhaahaahaahaaaa
+class Network {
+
+  // The network's fields
+  bias;
+  weights = [];
+  fn = function (x) { throw new Error('not implemented'); };
+  hidden = [];
+  output;
+
+  constructor (weights = [], bias = 0, fn) {
+    this.bias = bias;
+    this.weights = weights;
+    this.fn = fn;
+
+    // Define our hidden input layers
+    this.hidden = [
+      new Neuron(this.weights, this.bias, this.fn),
+      new Neuron(this.weights, this.bias, this.fn),
+    ];
+
+    this.output = new Neuron(this.weights, this.bias, this.fn);
+  }
+
+  run (inputs = []) {
+    let params = [];
+
+    console.log('\nGenerate output from hidden layers');
+    for (let h in this.hidden) {
+      console.log(`\nHidden layer #${h}`);
+      params.push(this.hidden[h].activate(inputs));
+    }
+
+    console.log('\n Apply output from hidden layers to output layer', params);
+    return this.output.activate(params);
+  }
+}
+
+// Our quintessential neuron! huzah!
+class Neuron {
+
+  // The neuron fields
+  bias;
+  weights;
+  fn = function (x) { throw new Error('not implemented'); };
+
+  constructor (weights = [], bias = 0, fn) {
+    this.bias = bias;
+    this.weights = weights;
+    this.fn = fn;
+  }
+
+  activate (inputs = []) {
+    if (inputs.length !== this.weights.length) {
+      throw new Error('input and weight shape mismatch');
+    }
+   
+    let buffer = [];
+    let output = 0;
+
+    console.log('input', inputs);
+    console.log('weights', this.weights);
+    console.log('biases', this.bias);
+
+    // Multiply the weights against the inputs
+    for (let i in inputs) {
+        buffer[i] = inputs[i] * this.weights[i];
+    }
+    console.log('\nMultiply weights and inputs', buffer);
+
+    // Add the biases into our output
+    for (let b in buffer) {
+        output += buffer[b];
+    }
+    output += this.bias
+    console.log('\nAdd all input-weights and bias together', output);
+    
+    // Activate the neuron (or not), based on applying the sigmoid function
+    // to the output of our inputs, weights, and biases.
+    let result = this.fn(output);
+    console.log('Apply sigmoid function to output', result);
+    return result;
+  }
+}
+
+console.log('Create neural network');
+const w = [0, 1];
+const b = 0;
+
+const nn = new Network(w, b, Math.sigmoid);
+
+const x = [2, 3];
+console.log('Run neural network against inputs');
+console.log(nn.run(x));
+
+
+  </script>
+</body>
+
+</html>
