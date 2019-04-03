@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/mihok/workshop-apr19#readme",
   "dependencies": {
+    "gauss-random": "^1.0.1",
     "ndarray": "^1.0.18",
     "ndarray-complex": "^1.0.3",
     "ndarray-gemm": "^1.0.0",

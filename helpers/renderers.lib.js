@@ -1,4 +1,9 @@
-// Shamelessly taken and modified from here:
+(window["webpackJsonp"] = window["webpackJsonp"] || []).push([[3],{
+
+/***/ 13:
+/***/ (function(module, exports) {
+
+// Shamelessly taken and modified from here: 
 //   https://github.com/adamschwartz/chrome-console-grapher
 var canvas,
   context,
@@ -34,3 +39,8 @@ window.console.graph = function (data) {
   }
   _graph(canvas.toDataURL(), height, width);
 };
+
+
+/***/ })
+
+},[[13,0]]]);

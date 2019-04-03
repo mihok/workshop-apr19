@@ -7,6 +7,8 @@ const PATH = {
 
 const ENTRIES = {
   'math': `${PATH.HELPERS}/Math.js`,
+  'renderers': `${PATH.HELPERS}/Renderer.js`,
+  'data': `${PATH.HELPERS}/data.js`,
 }
 
 module.exports = {
