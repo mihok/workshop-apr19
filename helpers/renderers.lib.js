@@ -1,9 +1,9 @@
 (window["webpackJsonp"] = window["webpackJsonp"] || []).push([[3],{
 
-/***/ 13:
+/***/ 2:
 /***/ (function(module, exports) {
 
-// Shamelessly taken and modified from here: 
+// Shamelessly taken and modified from here:
 //   https://github.com/adamschwartz/chrome-console-grapher
 var canvas,
   context,
@@ -25,7 +25,7 @@ var _graph = function(imageURL, height, width) {
     'padding-left: ' + width + 'px;' +
     'padding-bottom: ' + height + 'px;' +
     'background: url("' + imageURL + '"),' +
-    '-webkit-linear-gradient(#eee, #888);' +
+    '-webkit-linear-gradient(#1abc9c, #16a085);' +
     '');
 };
 
@@ -43,4 +43,4 @@ window.console.graph = function (data) {
 
 /***/ })
 
-},[[13,0]]]);
+},[[2,0]]]);

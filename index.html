@@ -24,23 +24,13 @@ const O1 = 2 // Output Layer #1
 
 const W1 = 0;
 const W2 = 1;
-// const W3 = 2;
-// const W4 = 3;
-const W5 = 2; // 4;
-const W6 = 3; // 5;
-// const W7 = 6;
-// const W8 = 7;
-const W9 = 4; // 8;
-const W10 = 5; // 9;
+const W3 = 2;
+const W4 = 3;
+const W5 = 4;
+const W6 = 5;
 
 const I1 = 0;
 const I2 = 1;
-// const I3 = 2;
-// const I4 = 3;
-
-// const B1 = 0;
-// const B2 = 1;
-// const B3 = 2;
 
 // Our neural network muhaahaahaahaaaa
 class Network {
@@ -54,167 +44,150 @@ class Network {
     0, // b3 (output)
   ];
 
-  // Our weights (w1 to w10)
+  // Our weights (w1 to w6)
   weights = [0, 0, 0, 0, 0, 0];
   
-  activatorFn = function (x) { throw new Error('not implemented'); };
-  lossFn = function (y) { throw new Error('not implemented'); };
+  lossFn = function (a, p) { throw new Error('not implemented'); };
   
   hidden = [];
   output;
 
-  constructor (weights = [], bias = [], activateFn, lossFn) {
+  constructor (weights = [], bias = [], activateFn, derivFn, lossFn) {
     this.biases = bias;
     this.weights = weights;
-    this.activatorFn = activateFn;
+    
     this.lossFn = lossFn;
 
-    const h1Weights = [
-      this.weights[W1],
-      this.weights[W2],
-      // this.weights[W3],
-      // this.weights[W4],
-    ];
-
-    const h2Weights = [
-      this.weights[W5],
-      this.weights[W6],
-      // this.weights[W7],
-      // this.weights[W8],
-    ];
-
-    const o1Weights = [
-      this.weights[W9],
-      this.weights[W10],
-    ];
+    const h1Weights = [ this.weights[W1], this.weights[W2] ];
+    const h2Weights = [ this.weights[W3], this.weights[W4] ];
+    const o1Weights = [ this.weights[W5], this.weights[W6] ];
 
     // Define our hidden input layers
     this.hidden = [
-      new Neuron(h1Weights, this.biases[H1], this.activatorFn),
-      new Neuron(h2Weights, this.biases[H2], this.activatorFn),
+      new Neuron(h1Weights, this.biases[H1], activateFn, derivFn),
+      new Neuron(h2Weights, this.biases[H2], activateFn, derivFn),
     ];
 
     // Define our output neuron, we assume only one output no matter what
-    this.output = new Neuron(o1Weights, this.biases[O1], this.activatorFn);
+    this.output = new Neuron(o1Weights, this.biases[O1], activateFn, derivFn);
   }
 
   // train() takes in a set of data to train on, and corrisponding answers 
   train (data = [], answers = [], iterations = 1000, rate = 0.1) {
     let lossData = [];
 
+    // We'll iterate over the data several times to adjust the weights 
     for (let i = 0; i < iterations; i += 1) {
-      // console.log(`Running iteration #${i}`);
       for (let d in data) {
         // Get our individual neuron data to calculate things
-        let sums = [];
-        let values = [];
 
         // Calculate our 1st hidden layer neuron
-        sums[H1] = this.hidden[H1].sum(data[d]);
-        values[H1] = this.hidden[H1].activatorFn(sums[H1]);
+        let h1Sum = this.hidden[H1].sum(data[d]);
+        let h1 = this.hidden[H1].activatorFn(h1Sum);
 
         // Calculate our 2nd hidden layer neuron
-        sums[H2] = this.hidden[H2].sum(data[d]);
-        values[H2] = this.hidden[H2].activatorFn(sums[H2]);
+        let h2Sum = this.hidden[H2].sum(data[d]);
+        let h2 = this.hidden[H2].activatorFn(h2Sum);
 
         // Calcualte our output layer neuron
-        sums[O1] = this.output.sum([sums[H1], sums[H2]]);
-        values[O1] = this.output.activatorFn(sums[O1]);
+        let o1Sum = this.output.sum([h1, h2]);
+        let o1 = this.output.activatorFn(o1Sum);
 
-        let prediction = values[O1];
+        // Here is the networks current prediction
+        let pred = o1;
 
 
-        // Now we'll calculate the partial derivatives
+        // Now we'll calculate an adjustment to the weights with partial
+        // derivatives to improve that prediction based on the actual answers.
+        // The formula we use is the following,
+        //
+        // ∂L/∂wN = ∂L/∂pred * ∂pred/∂wN
+        //
+        // Which will give us a value that we can apply against our learning
+        // rate to adjust a particular weight
         
-        let dLDPred = -2 * (answers[d] - prediction);
+        // ∂L/∂pred = -2*(answer - prediction);
+        let pLpO1 = -2 * (answers[d] - pred);
 
-        // Lets work backwards, i.e. backpropagation
 
+        // Lets do our backpropagation to calculate the rest
 
         // Output Neuron
 
-        // w10
-        let dPredDW10 = values[H1] * Math.derivSigmoid(sums[O1]);
-        // w9
-        let dPredDW9 = values[H2] * Math.derivSigmoid(sums[O1]);
-        // b3
-        let dPredDB3 = Math.derivSigmoid(sums[O1]);
+        // ∂pred/∂w6
+        let pO1pW6 = h1 * Math.derivSigmoid(o1Sum);
+        // ∂pred/∂w5
+        let pO1pW5 = h2 * Math.derivSigmoid(o1Sum);
 
-        let dPredDH1 = this.weights[W9] * Math.derivSigmoid(sums[O1]);
-        let dPredDH2 = this.weights[W10] * Math.derivSigmoid(sums[O1]);
-
-        
-        // Hidden Layer Neuron #2
-
-        // w8
-        // let dH2DW8 = data[d][I1] * Math.derivSigmoid(sums[H2]);
-        // w7
-        // let dH2DW7 = data[d][I2] * Math.derivSigmoid(sums[H2]);
-        // w6
-        let dH2DW6 = data[d][I1] * Math.derivSigmoid(sums[H2]);
-        // w5
-        let dH2DW5 = data[d][I2] * Math.derivSigmoid(sums[H2]);
-        // b2
-        let dH2DB2 = Math.derivSigmoid(sums[H2]);
+        // ∂pred/∂b3
+        let pO1pB3 = Math.derivSigmoid(o1Sum);
 
 
-        // Hidden Layer Neuron #1
-        
-        // w4
-        // let dH1DW4 = data[d][I1] * Math.derivSigmoid(sums[H1]);
-        // w3
-        // let dH1DW3 = data[d][I2] * Math.derivSigmoid(sums[H1]);
-        // w2
-        let dH1DW2 = data[d][I1] * Math.derivSigmoid(sums[H1]);
-        // w1
-        let dH1DW1 = data[d][I2] * Math.derivSigmoid(sums[H1]);
-        // b1
-        let dH1DB1 = Math.derivSigmoid(sums[H1]);
+        // ∂pred/∂h1
+        let pO1pH1 = this.weights[W5] * Math.derivSigmoid(o1Sum);
+        // ∂pred/∂h2
+        let pO1pH2 = this.weights[W6] * Math.derivSigmoid(o1Sum);
+
+        // Hidden Neurons
+
+        // ∂h1/∂w1
+        let pH1pW1 = data[d][I1] * Math.derivSigmoid(h1Sum);
+        // ∂h2/w2
+        let pH1pW2 = data[d][I2] * Math.derivSigmoid(h1Sum);
+        // ∂h1/b1
+        let pH1pB1 = Math.derivSigmoid(h1Sum);
+
+        // ∂h2/w3
+        let pH2pW3 = data[d][I1] * Math.derivSigmoid(h2Sum);
+        // ∂h2/w4
+        let pH2pW4 = data[d][I2] * Math.derivSigmoid(h2Sum);
+        // ∂h2/b2
+        let pH2pB2 = Math.derivSigmoid(h2Sum);
+
+
+        // Set our new weights and biases in our network so we remember them
+        this.weights[W1] -= rate * pLpO1 * pO1pH1 * pH1pW1;
+        this.weights[W2] -= rate * pLpO1 * pO1pH1 * pH1pW2;
+       
+        this.weights[W3] -= rate * pLpO1 * pO1pH2 * pH2pW3;
+        this.weights[W4] -= rate * pLpO1 * pO1pH2 * pH2pW3;
+       
+        this.weights[W5] -= rate * pLpO1 * pO1pW5;
+        this.weights[W6] -= rate * pLpO1 * pO1pW6;
+
+        this.biases[H1] -= rate * pLpO1 * pO1pH1 * pH1pB1;
+        this.biases[H2] -= rate * pLpO1 * pO1pH2 * pH2pB2;
+        this.biases[O1] -= rate * pLpO1 * pO1pB3;
+
 
         // Now let's update our weights and biases to minimize loss
         
         // Output Neuron
-        this.weights[W10] -= rate * dLDPred * dPredDW10;
-        this.weights[W9] -= rate * dLDPred * dPredDW9;
         // Update our ouput neuron to reflect the new weights
         this.output.weights = [
-          this.weights[W10],
-          this.weights[W9],
+          this.weights[W5],
+          this.weights[W6],
         ];
 
-        this.biases[O1] -= rate * dLDPred * dPredDB3;
         this.output.bias = this.biases[O1];
 
+
         // Hidden Layer Neuron #2
-        // this.weights[W8] -= rate * dLDPred * dPredDH2 * dH2DW8;
-        // this.weights[W7] -= rate * dLDPred * dPredDH2 * dH2DW7;
-        this.weights[W6] -= rate * dLDPred * dPredDH2 * dH2DW6;
-        this.weights[W5] -= rate * dLDPred * dPredDH2 * dH2DW5;
         // Update our neuron to reflect the new weights
         this.hidden[H2].weights = [
-          // this.weights[W8],
-          // this.weights[W7],
-          this.weights[W6],
-          this.weights[W5],
+          this.weights[W3],
+          this.weights[W4],
         ];
 
-        this.biases[H2] -= rate * dLDPred * dPredDH2 * dH2DB2;
         this.hidden[H2].bias = this.biases[H2];
 
         // Hidden Layer Neuron #1
-        // this.weights[W4] -= rate * dLDPred * dPredDH1 * dH1DW4;
-        // this.weights[W3] -= rate * dLDPred * dPredDH1 * dH1DW3;
-        this.weights[W2] -= rate * dLDPred * dPredDH1 * dH1DW2;
-        this.weights[W1] -= rate * dLDPred * dPredDH1 * dH1DW1;
         // Update our neuron to reflect the new weights
         this.hidden[H1].weights = [
-          // this.weights[W4],
-          // this.weights[W3],
-          this.weights[W2],
           this.weights[W1],
+          this.weights[W2],
         ];
 
-        this.biases[H1] -= rate * dLDPred * dPredDH1 * dH1DB1;
         this.hidden[H1].bias = this.biases[H1];
       }
 
@@ -242,13 +215,10 @@ class Network {
   query (inputs = []) {
     let params = [];
 
-    // console.log('\nGenerate output from hidden layers');
     for (let h in this.hidden) {
-      // console.log(`\nHidden layer #${h}`);
       params.push(this.hidden[h].activate(inputs));
     }
 
-    // console.log('\n Apply output from hidden layers to output layer', params);
     return this.output.activate(params);
   }
 }
@@ -259,32 +229,31 @@ class Neuron {
   // The neuron fields
   bias;
   weights;
-  fn = function (x) { throw new Error('not implemented'); };
+  activatorFn = function (x) { throw new Error('not implemented'); };
+  derivFn = function (x) { throw new Error('not implemented'); };
 
-  constructor (weights = [], bias = 0, fn) {
+  constructor (weights = [], bias = 0, activateFn, derivFn) {
     this.bias = bias;
     this.weights = weights;
-    this.activatorFn = fn;
+    this.activatorFn = activateFn;
+    this.derivFn = derivFn;
   }
 
   sum (inputs = []) {
     let buffer = [];
     let output = 0;
 
-    // console.log('input', inputs);
-    // console.log('weights', this.weights);
-    // console.log('biases', this.bias);
-
     // Multiply the weights against the inputs
     for (let i in inputs) {
         buffer[i] = inputs[i] * this.weights[i];
     }
-    // console.log('\nMultiply weights and inputs', buffer);
 
-    // Add the biases into our output
+    // Add them all up
     for (let b in buffer) {
         output += buffer[b];
     }
+    
+    // Finally add our bias
     output += this.bias
 
     return output;
@@ -297,13 +266,12 @@ class Neuron {
    
     let output = 0;
 
-    // console.log('\nAdd all input-weights and bias together', output);
     output = this.sum(inputs);
     
     // Activate the neuron (or not), based on applying the sigmoid function
     // to the output of our inputs, weights, and biases.
     let result = this.activatorFn(output);
-    // console.log('Apply sigmoid function to output', result);
+    
     return result;
   }
 }
@@ -320,55 +288,33 @@ class Neuron {
 
 // Let's generate our training data in a machine-readable form
 const data = [];
-// for (let row in DATA.weather["2018"]) {
-for (let row in DATA.weightHeightGender) {
+
+for (let row in DATA.whg) {
   data.push([
     // I1
-    DATA.weightHeightGender[row].weight,
+    DATA.whg[row].weight,
     // I2
-    DATA.weightHeightGender[row].height,
-    // I3
-    // DATA.weather["2018"][row].minTemp,
-    // I4
-    // DATA.weather["2018"][row].maxTemp,
+    DATA.whg[row].height,
   ]);
 };
 
 // Let's generate our training "answer" data in a machine-readable form
 const answers = [];
-// for (let row in DATA.weather["2018"]) {
-for (let row in DATA.weightHeightGender) {
-  // answers.push(DATA.weather["2018"][row].totalPrecipitation > 0 ? 1 : 0);
-  answers.push(DATA.weightHeightGender[row].gender > 0 ? 1 : 0);
+for (let row in DATA.whg) {
+  answers.push(DATA.whg[row].gender);
 }
 
 
 console.log('Create neural network');
 const nn = new Network(
   // weights
-  // [0, 0, 0, 0, 0, 0],
-  // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [
-    Math.nrand(), // w1
-    Math.nrand(), // w2
-    // Math.random(), // w3
-    // Math.random(), // w4
-    Math.nrand(), // w5
-    Math.nrand(), // w6
-    // Math.random(), // w7
-    // Math.random(), // w8
-    Math.nrand(), // w9
-    Math.nrand(), // w10
-  ],
+  [1, 1, 1, 1, 1, 1],
   // bias
-  // [0, 0, 0],
-  [
-    Math.nrand(), // b1
-    Math.nrand(), // b2
-    Math.nrand(), // b3
-  ],
+  [0, 0, 0],
   // activation function
   Math.sigmoid,
+  // derivitave function of our activation function
+  Math.derivSigmoid,
   // loss function
   Math.meanSquaredError,
 );
@@ -376,20 +322,11 @@ const nn = new Network(
 console.log('Train neural network', data, answers);
 nn.train(data, answers, 1000, 0.1)
 
-// console.log('Did it rain on January X, 2019?')
-// console.log('Answer', nn.query([1, 1, -5, -12]));
-
-// console.log('Will it rain on April 17, 2019?')
-// console.log('Answer', nn.query([4, 17, 1, 7]));
-
-console.log('Is Emily a girl or a boy')
+console.log('Is Emily ( a girl or a boy')
 console.log('Answer', nn.query([-7, -3]));
 
 console.log('Is Frank a girl or a boy')
 console.log('Answer', nn.query([20, 2]));
-
-
-
 
   </script>
 </body>

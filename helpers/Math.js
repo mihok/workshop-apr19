@@ -1,7 +1,3 @@
-const ndarray = require('ndarray');
-const gemm = require('ndarray-gemm');
-const ops = require('ndarray-ops');
-const zeros = require('zeros');
 const nrand = require('gauss-random')
 
 // Samples the standard normal distribution, with 0 mean and unit standard
@@ -21,19 +17,17 @@ window.Math.derivSigmoid = function ( x ) {
 }
 
 // Mean Squared Error calculation on two arrays of the same shape. (n x 1)
-window.Math.meanSquaredError = function ( a, p ) {
-  const answers = ndarray(a, [1, a.length]);
-  const predictions = ndarray(p, [1, p.length]);
+window.Math.meanSquaredError = function ( answers, predictions ) {
+  if (answers.length !== predictions.length) {
+    throw new Error('array length mismatch');
+  }
 
-  let result = zeros([1, 1]);
-  let buffer = zeros([1, a.length]);
+  let sum = 0;
 
-  // Data = answers - predictions
-  ops.sub(buffer, answers, predictions);
+  for (let i = 0; i < answers.length; i += 1) {
+    // (a - p)^2
+    sum += Math.pow(answers[i] - predictions[i], 2);
+  }
 
-  // Data ** 2
-  gemm(result, buffer, buffer.transpose(1, 0));
-
-  // Calculate the mean of data
-  return result.get(0, 0) / a.length;
+  return (1 / answers.length) * sum;
 }

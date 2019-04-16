@@ -20,7 +20,7 @@ var _graph = function(imageURL, height, width) {
     'padding-left: ' + width + 'px;' +
     'padding-bottom: ' + height + 'px;' +
     'background: url("' + imageURL + '"),' +
-    '-webkit-linear-gradient(#eee, #888);' +
+    '-webkit-linear-gradient(#1abc9c, #16a085);' +
     '');
 };
 
