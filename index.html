@@ -9,80 +9,13 @@
     <script type="text/javascript" src="helpers/manifest.lib.js"></script>
     <script type="text/javascript" src="helpers/math.lib.js"></script>
     <script type="text/javascript" src="helpers/data.lib.js"></script>
-    <!-- Insert Live Editor here -->
 </head>
 
 <body>
   <script type="text/javascript" src="helpers/renderers.lib.js"></script>
   <script type="text/javascript">
 
-
-// Shared variable names to reference information
-const W1 = 0;
-const W2 = 1;
-
-const I1 = 0;
-const I2 = 1;
-
-// Our quintessential neuron! huzah!
-class Neuron {
-
-  // The neuron fields
-  bias;
-  weights;
-  activatorFn = function (x) { throw new Error('not implemented'); };
-
-  constructor (weights = [], bias = 0, activateFn ) {
-    this.bias = bias;
-    this.weights = weights;
-    this.activatorFn = activateFn;
-  }
-
-  sum (inputs = []) {
-    let buffer = [];
-    let output = 0;
-
-    // Multiply the weights against the inputs
-    for (let i in inputs) {
-        buffer[i] = inputs[i] * this.weights[i];
-    }
-
-    // Add them all up
-    for (let b in buffer) {
-        output += buffer[b];
-    }
-    
-    // Finally add our bias
-    output += this.bias
-
-    return output;
-  }
-
-  activate (inputs = []) {
-    if (inputs.length !== this.weights.length) {
-      throw new Error('input and weight shape mismatch');
-    }
-   
-    let output = 0;
-
-    output = this.sum(inputs);
-    
-    // Activate the neuron (or not), based on applying the sigmoid function
-    // to the output of our inputs, weights, and biases.
-    let result = this.activatorFn(output);
-    
-    return result;
-  }
-}
-
-const w = 1;
-const b = 4;
-
-const n = new Neuron(w, b, Math.sigmoid);
-
-const x = 2;
-console.log('Run neuron against inputs');
-console.log(n.activate(x));
+// Welcome to TorontoJS Workshop :) 
 
   </script>
 </body>
