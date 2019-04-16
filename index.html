@@ -92,7 +92,7 @@ class Neuron {
   weights;
   activatorFn = function (x) { throw new Error('not implemented'); };
 
-  constructor (weights = [], bias = 0, activateFn, derivFn) {
+  constructor (weights = [], bias = 0, activateFn) {
     this.bias = bias;
     this.weights = weights;
     this.activatorFn = activateFn;
